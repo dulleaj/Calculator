@@ -32,10 +32,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *tip15Percent;
 @property (weak, nonatomic) IBOutlet UITextView *mainDisplay;
 @property Calculations* equation;
-@property int runningTotal;
-@property int operationSelected;
-@property int firstInt;
-@property int secondInt;
 
 @end
 
@@ -50,11 +46,14 @@
     self.mainDisplay.text = @"0";
 }
 
+
+//  METHOD TO REMOVE ZERO FROM BEGINNING OF NUMBERS
 - (void)removeDefaultZero{
     
-    if ([self.mainDisplay.text isEqual: @"0"]/* || self.operationSelected != 0*/) {
+    if ([self.mainDisplay.text isEqual: @"0"] || self.equation.operationButtonWasPressed == YES) {
         
         self.mainDisplay.text = @"";
+        self.equation.operationButtonWasPressed = NO;
     }
 }
 
@@ -134,169 +133,137 @@
 }
 
 
-- (IBAction)ACWasPushed:(id)sender {
+- (IBAction)ACWasPushed:(id)sender { //0
 
-    self.runningTotal = 0;
-    self.mainDisplay.text = @"0";
+    [self changeButtonAlphaBack];
+
+    self.mainDisplay.text = [self.equation solveCurrentEquation:0 for:self.mainDisplay.text];
 }
 
 
 - (IBAction)periodWasPushed:(id)sender {
-
-    self.mainDisplay.text = [self.mainDisplay.text stringByAppendingString:@"0."];
+    
+    self.equation.decimalWasPressed = YES;
+    
+    [self removeDefaultZero];
+    
+    if ([self.mainDisplay.text isEqualToString:@""]){
+        self.mainDisplay.text = [self.mainDisplay.text stringByAppendingString:@"0."];
+        
+    }else{
+        
+        self.mainDisplay.text = [self.mainDisplay.text stringByAppendingString:@"."];
+    }
 }
 
 
 - (IBAction)equalsWasPushed:(id)sender {
     
-    self.secondInt = [self.mainDisplay.text intValue];
+    [self changeButtonAlphaBack];
     
-    [self equalsUsesOperationSelected:self.operationSelected];
+    self.mainDisplay.text = [self.equation solveCurrentEquation:self.equation.operationSelected for:self.mainDisplay.text];
     
-    self.mainDisplay.text = [NSString stringWithFormat:@"%d",self.runningTotal];
-    
-    self.runningTotal = 0;
-    
-}
-
-
-- (void)equalsUsesOperationSelected:(int)operation {
-    
-    if (operation == 1){
-        
-        self.runningTotal = self.runningTotal + self.secondInt;
-        
-    }else if (operation == 2){
-        
-        self.runningTotal = self.runningTotal - self.secondInt;
-        
-    }else if (operation == 3){
-        
-        self.runningTotal = self.runningTotal * self.secondInt;
-        
-    }else if (operation == 4){
-        
-        self.runningTotal = self.runningTotal / self.secondInt;
-    }
+    self.equation.runningTotalFloat = 0;
 }
 
 
 - (IBAction)plusWasPushed:(id)sender { //1
     
-    self.operationSelected = 1;
-    
-    [self currentTextToInt];
+    [self wasEqualsButtonPressed:1];
+    self.plus.alpha = .5;
 }
 
 
 - (IBAction)minusWasPushed:(id)sender { //2
     
-    self.operationSelected = 2;
-    
-    [self currentTextToInt];
+    [self wasEqualsButtonPressed:2];
+    self.minus.alpha = .5;
 }
 
 
 - (IBAction)multiplyWasPushed:(id)sender { //3
     
-    self.operationSelected = 3;
-    
-    [self currentTextToInt];
+    [self wasEqualsButtonPressed:3];
+    self.multiply.alpha = .5;
 }
 
 
 - (IBAction)divideWasPushed:(id)sender { //4
     
-    self.operationSelected = 4;
+    [self wasEqualsButtonPressed:4];
+    self.divide.alpha = .5;
+}
+
+
+- (IBAction)tip20WasPushed:(id)sender { //5
+
+    [self changeButtonAlphaBack];
+    self.tip20Percent.alpha = .5;
     
-    [self currentTextToInt];
+    self.mainDisplay.text = [self.equation percentageAnswer:5 of:self.mainDisplay.text];
+    self.equation.runningTotalFloat = 0;
 }
 
 
-- (IBAction)tip20WasPushed:(id)sender {
+- (IBAction)tip18WasPushed:(id)sender { //6
+
+    [self changeButtonAlphaBack];
+    self.tip18Percent.alpha = .5;
+
+    self.mainDisplay.text = [self.equation percentageAnswer:6 of:self.mainDisplay.text];
+    self.equation.runningTotalFloat = 0;
 }
 
 
-- (IBAction)tip18WasPushed:(id)sender {
+- (IBAction)tip15WasPushed:(id)sender { //7
+
+    [self changeButtonAlphaBack];
+    self.tip15Percent.alpha = .5;
+
+    self.mainDisplay.text = [self.equation percentageAnswer:7 of:self.mainDisplay.text];
+    self.equation.runningTotalFloat = 0;
 }
 
 
-- (IBAction)tip15WasPushed:(id)sender {
-}
-
-
-- (void)currentTextToInt { // happens when operation is pushed
+// METHOD FOR MAKING ALL OPERATION BUTTONS LOOK NORMAL AGAIN
+- (void)changeButtonAlphaBack {
     
-    self.firstInt = [self.mainDisplay.text intValue];
-    self.runningTotal = self.runningTotal + self.firstInt;
-    self.mainDisplay.text = nil;
+    if((self.plus.alpha == .5) || (self.minus.alpha == .5)||(self.multiply.alpha == .5)||(self.divide.alpha == .5)||(self.tip20Percent.alpha == .5)||(self.tip18Percent.alpha == .5)||(self.tip15Percent.alpha == .5)){
+        
+    self.plus.alpha = 1;
+    self.minus.alpha = 1;
+    self.multiply.alpha = 1;
+    self.divide.alpha = 1;
+    self.tip15Percent.alpha = 1;
+    self.tip18Percent.alpha = 1;
+    self.tip20Percent.alpha = 1;
+    
+    }
 }
 
-/* CHANGES THAT I'M TESTING
 
-in currentTextToInt, I'm erasing running total.
- 
-*/
+// METHOD UPDATING TEXTVIEW DURING EQUATION AND FOR REFERENCING CALCULATIONS METHOD FOR SETTING FIRST FLOAT
+- (void)wasEqualsButtonPressed: (int)operation {
+    
+    [self changeButtonAlphaBack];
+    
+    if (self.equation.operationSelected == 0){
+        self.equation.operationSelected = operation;
+        self.equation.operationButtonWasPressed = YES;
+        [self.equation convertTextViewToUserFloat:self.mainDisplay.text];
+    }else{
+        
+        self.mainDisplay.text = [self.equation solveCurrentEquation:self.equation.operationSelected for:self.mainDisplay.text];
+        self.equation.operationSelected = operation;
+        self.equation.operationButtonWasPressed = YES;
+    }
+}
 
 
 /* TO DO:
  
-- Could be cool to make text box larger and show equation being typed out?
-- If a number is pushed, display should show that number. If a sign is pushed, it's alpha should be changed to 0.75.
+the app is currently converting "2,000" into "2" when there is a comma. There is only a comma because of the integer adjustments I made. I need to factor in some logic to remove , when converting textviews to numbers
  
 */
-
-
-
-
-/* RANDOM NOTES;
- 
-Buttons: "1 + 1 = + 1 =" (2)
- 
- - "1" is pressed, making textView equal to (1)
- 
- - "+" is pressed, calling the method that makes self.firstInt equal to what's in the textview (1). Then, self.runningTotal (0) = self.runningTotal (0) + firstInt (1), which means self.runningTotal equals (1). TextView is then cleared.
- 
- - "1" is pressed again, making the textView equal to (1)
- 
- - "=" is pressed, making self.secondInt equal to the textView, which is (1). It then calls the method that uses the formula: [self.runningTotal (1)] = [self.runningTotal (1)] + [self.secondInt (1)]. self.runningTotal now equals 2 (from 1 + 1), and the textview equals (2).
- 
- - "+" is pressed, calling the method that makes self.firstInt equal to what's in the textview (2). Then, self.runningTotal (2) = self.runningTotal (2) + firstInt (now 2), which means self.runningTotal equals (4). textview is then cleared.
- 
- - "1" is pressed, making the textview equal to (1)
- 
- - "=" is pressed, making self.secondInt equal to the textView, which is (1). It then calls the method that uses the formula: [self.runningTotal (4)] = [self.runningTotal (4)] + [self.secondInt (1)]. self.runningTotal now equals 5 (from 4 + 1), and the textview equals (5).
- 
- 
- 
-----------
- 
- 
- 
- Buttons: "1 + 1 + 1 =" (2)
- 
- - "1" is pressed, making textView equal to (1)
- 
- - "+" is pressed, calling the method that makes self.firstInt equal to what's in the textview (1). Then, self.runningTotal (0) = self.runningTotal (0) + firstInt (1), which means self.runningTotal equals (1). TextView is then cleared.
- 
- - "1" is pressed again, making the textView equal to (1)
- 
- - "+" is pressed, calling the method that makes self.firstInt equal to what's in the textview (1). Then, self.runningTotal (1) = self.runningTotal (1) + firstInt (now 1), which means self.runningTotal equals (2). textview is then cleared.
- 
- - "1" is pressed, making the textview equal to (1)
- 
- - "=" is pressed, making self.secondInt equal to the textView, which is (1). It then calls the method that uses the formula: [self.runningTotal (2)] = [self.runningTotal (2)] + [self.secondInt (1)]. self.runningTotal now equals 3 (from 2 + 1), and the textview equals (3).
-
-
- _____________________________________________________________________________________________________
- VS 
- 
-
- 
-When "=" is pushed, at the end we need to set running total equal to 0. The textview will still equal the running total, then when the next operation is pressed the running total will be set back to where it should be.
- 
- 
- 
- */
 
 @end
