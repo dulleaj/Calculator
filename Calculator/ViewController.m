@@ -161,6 +161,8 @@
     
     [self changeButtonAlphaBack];
     
+    self.equals.enabled = NO;
+    
     self.mainDisplay.text = [self.equation solveCurrentEquation:self.equation.operationSelected for:self.mainDisplay.text];
     
     self.equation.runningTotalFloat = 0;
@@ -197,6 +199,8 @@
 
 - (IBAction)tip20WasPushed:(id)sender { //5
 
+    self.equals.enabled = NO;
+    
     [self changeButtonAlphaBack];
     self.tip20Percent.alpha = .5;
     
@@ -207,6 +211,8 @@
 
 - (IBAction)tip18WasPushed:(id)sender { //6
 
+    self.equals.enabled = NO;
+    
     [self changeButtonAlphaBack];
     self.tip18Percent.alpha = .5;
 
@@ -217,6 +223,8 @@
 
 - (IBAction)tip15WasPushed:(id)sender { //7
 
+    self.equals.enabled = NO;
+    
     [self changeButtonAlphaBack];
     self.tip15Percent.alpha = .5;
 
@@ -245,12 +253,15 @@
 // METHOD UPDATING TEXTVIEW DURING EQUATION AND FOR REFERENCING CALCULATIONS METHOD FOR SETTING FIRST FLOAT
 - (void)wasEqualsButtonPressed: (int)operation {
     
+    self.equals.enabled = YES;
+    
     [self changeButtonAlphaBack];
     
     if (self.equation.operationSelected == 0){
         self.equation.operationSelected = operation;
         self.equation.operationButtonWasPressed = YES;
-        [self.equation convertTextViewToUserFloat:self.mainDisplay.text];
+        NSString *sansCommas = [self.mainDisplay.text stringByReplacingOccurrencesOfString:@"," withString:@""];//added
+        [self.equation convertTextViewToUserFloat:sansCommas];//changed to sansCommas
     }else{
         
         self.mainDisplay.text = [self.equation solveCurrentEquation:self.equation.operationSelected for:self.mainDisplay.text];
@@ -262,7 +273,9 @@
 
 /* TO DO:
  
-the app is currently converting "2,000" into "2" when there is a comma. There is only a comma because of the integer adjustments I made. I need to factor in some logic to remove , when converting textviews to numbers
+need to add commas to text as it's entered, then go to wasEqualsPressed and convert string using same format.
+ 
+could also stand to fix how user can hit plus then equals instantly again. Might need to change when number is pressed?
  
 */
 

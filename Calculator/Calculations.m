@@ -12,6 +12,9 @@
 
 // METHOD FOR SOLVING EQUATION AFTER EQUALS WAS PRESSED, OR UPDATING TEXTVIEW DURING EQUATION
 - (NSString *)solveCurrentEquation:(int)operation for:(NSString*)currentTextView{
+   
+    //self.mainDisplay.text = [self.equation solveCurrentEquation:self.equation.operationSelected for:self.mainDisplay.text];
+
     
     self.operationButtonWasPressed = YES;
     
@@ -127,7 +130,6 @@
     return [self.decimalAdjuster stringFromNumber:totalNumber];
     
 }
-
 
 
 @end
